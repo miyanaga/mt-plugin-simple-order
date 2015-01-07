@@ -1,0 +1,25 @@
+id: Priority
+name: Priority
+version: 0.1.0
+schema_version: 0.01
+l10n_class: MT::Plugin::Priority::L10N
+
+object_types:
+    entry:
+        priority_value: integer indexed
+
+config_settings:
+    PriorityInterval:
+        default: 10
+
+list_properties: $Priority::MT::Plugin::Priority::Listing::properties
+list_actions: $Priority::MT::Plugin::Priority::Listing::actions
+
+applications:
+    cms:
+        callbacks:
+            template_param.list_common: $Priority::MT::Plugin::Priority::Listing::template_param_list_common
+#            template_param.edit_entry: $Priority::MT::Plugin::Priority::CMS::template_param_edit_entry
+#            cms_pre_preview: $Priority::MT::Plugin::Priority::CMS::pre_preview_entry
+#            cms_pre_save.entry: $Priority::MT::Plugin::Priority::CMS::pre_save_object
+#            cms_pre_save.page: $Priority::MT::Plugin::Priority::CMS::pre_save_object
