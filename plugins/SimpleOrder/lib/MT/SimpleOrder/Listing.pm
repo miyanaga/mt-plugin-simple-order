@@ -1,15 +1,22 @@
-package MT::Plugin::Priority::Listing;
+package MT::SimpleOrder::Listing;
 
 use strict;
 use warnings;
 
-use MT::Plugin::Priority::Util;
+use MT::SimpleOrder::Util;
 
 our %objects = (
     entry => {
-        code => \&action_set_entry_priority,
+        code => \&action_set_entry_order,
         permit_action => {
             permit_action => 'edit_all_entries',
+            at_least_one => 1,
+        },
+    },
+    page => {
+        code => \&action_set_page_order,
+        permit_action => {
+            permit_action => 'edit_pages',
             at_least_one => 1,
         },
     },
@@ -19,11 +26,13 @@ sub _object_prop {
     my ( $type, $args ) = @_;
 
     {
-        priority_value => {
-            label     => 'Priority Value',
+        simple_order => {
+            label     => 'Simple Order',
+            col_class => 'id',
             base      => '__virtual.integer',
-            display   => 'force',
-            col       => 'priority_value',
+            display   => MT->instance->config('SimpleOrderDisplay') || 'default',
+            col       => 'simple_order',
+            order     => MT->instance->config('SimpleOrderOrder') || 2000,
         },
     };
 }
@@ -40,16 +49,16 @@ sub _object_action {
     my ( $type, $args ) = @_;
 
     {
-        set_priority_value => {
-            label => 'Set Priority',
+        set_simple_order => {
+            label => 'Set Order',
             order => 2000,
             code => $args->{code},
             input => 1,
-            input_label => 'Enter priority integer value',
+            input_label => 'Enter integer order value',
             permit_action => $args->{permit_action},
         },
-        reset_priority_value => {
-            label => 'Reset Priority',
+        reset_simple_order => {
+            label => 'Reset Order',
             order => 2100,
             code => $args->{code},
             permit_action => $args->{permit_action},
@@ -92,7 +101,7 @@ sub _return_list_action {
         : $app->call_return;
 }
 
-sub _action_set_priority {
+sub _action_set_order {
     my $type = shift;
     my $object = $objects{$type};
 
@@ -104,56 +113,59 @@ sub _action_set_priority {
     my @id = $app->param('id');
     my $value = $app->param('itemset_action_input');
     $value =~ s/^\s+|\s+$//g;
-    pp($value);
-    my $priority = defined($value) && $value ne '' ? int($value) : undef;
+    my $order = defined($value) && $value ne '' ? int($value) : undef;
 
     _return_list_action( $app, $xhr,
         return_args => {
-            priority_not_integer => 1,
+            simple_order_not_integer => 1,
         },
         cls => 'error',
         msg => plugin->translate(
-            'Enter a positive integer as priority value.',
+            'Enter a positive integer as order value.',
         ),
-    ) if defined($priority) && $priority ne $value;
+    ) if defined($order) && $order ne $value;
 
     my @objects = MT->model($type)->load({id => \@id});
     my $set_count = 0;
     foreach my $obj ( @objects ) {
         next unless _is_user_editable_object($user, $type, $obj);
-        $obj->priority_value($priority);
+        $obj->simple_order($order);
         $obj->save or next;
         $set_count ++;
     }
 
-    if ( defined($priority) ) {
+    if ( defined($order) ) {
         _return_list_action( $app, $xhr,
             return_args => {
-                priority_set => $set_count,
-                priority_value => $value,
+                simple_order_set => $set_count,
+                simple_order_value => $value,
             },
             cls => 'success',
             msg => plugin->translate(
-                'Successfully set priority value of [_1] object(s) to [_2].',
-                $set_count, $priority
+                'Successfully set order value of [_1] object(s) to [_2].',
+                $set_count, $order
             ),
         );
     } else {
         _return_list_action( $app, $xhr,
             return_args => {
-                priority_reset => $set_count,
+                simple_order_reset => $set_count,
             },
             cls => 'success',
             msg => plugin->translate(
-                'Successfully reset priority value of [_1] object(s).',
+                'Successfully reset order value of [_1] object(s).',
                 $set_count
             ),
         );
     }
 }
 
-sub action_set_entry_priority {
-    _action_set_priority('entry', @_);
+sub action_set_entry_order {
+    _action_set_order('entry', @_);
+}
+
+sub action_set_page_order {
+    _action_set_order('page', @_);
 }
 
 sub template_param_list_common {
@@ -162,26 +174,26 @@ sub template_param_list_common {
     my $include = $tmpl->getElementById('header_include');
     my $node = $tmpl->createElement('setvarblock', { name => 'system_msg', append => 1 });
     $node->innerHTML(q(
-        <__trans_section component="Priority">
-        <mt:if name="priority_not_integer">
+        <__trans_section component="SimpleOrder">
+        <mt:if name="simple_order_not_integer">
             <mtapp:statusmsg
-                id="priority-not-integer"
+                id="simple-order-not-integer"
                 class="error">
-                <__trans phrase="Enter a positive integer as priority value.">
+                <__trans phrase="Enter a positive integer as order value.">
             </mtapp:statusmsg>
         </mt:if>
-        <mt:if name="priority_set">
+        <mt:if name="simple_order_set">
             <mtapp:statusmsg
-                id="priority-set-priority"
+                id="simple-order-set"
                 class="success">
-                <__trans phrase="Successfully set priority value of [_1] object(s) to [_2]." params="<mt:var name='priority_set' />%%<mt:var name='priority_value' />">
+                <__trans phrase="Successfully set order value of [_1] object(s) to [_2]." params="<mt:var name='simple_order_set' />%%<mt:var name='simple_order_value' />">
             </mtapp:statusmsg>
         </mt:if>
-        <mt:if name="priority_reset">
+        <mt:if name="simple_order_reset">
             <mtapp:statusmsg
-                id="priority-reset-priority"
+                id="simple-order-reset"
                 class="success">
-                <__trans phrase="Successfully reset priority value of [_1] object(s)." params="<mt:var name='priority_reset' />">
+                <__trans phrase="Successfully reset order value of [_1] object(s)." params="<mt:var name='simple_order_reset' />">
             </mtapp:statusmsg>
         </mt:if>
         </__trans_section>
@@ -189,7 +201,7 @@ sub template_param_list_common {
     $tmpl->insertBefore($node, $include);
 
     foreach my $key ( qw(set value reset not_integer) ) {
-        my $p = "priority_$key";
+        my $p = "simple_order_$key";
         $param->{$p} = $app->param($p);
     }
 

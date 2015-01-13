@@ -1,4 +1,4 @@
-package MT::Plugin::Priority::Util;
+package MT::SimpleOrder::Util;
 
 use strict;
 use warnings;
@@ -8,7 +8,7 @@ use Data::Dumper;
 
 our @EXPORT = qw(plugin pp);
 
-sub plugin { MT->component('Priority') }
+sub plugin { MT->component('SimpleOrder') }
 
 sub pp { print STDERR Dumper(@_); }
 
