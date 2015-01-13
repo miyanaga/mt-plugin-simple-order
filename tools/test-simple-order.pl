@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-package MT::Plugin::Priority::Test;
+package MT::SimpleOrder::Test;
 use strict;
 use warnings;
 use FindBin;
@@ -38,9 +38,9 @@ sub main {
 
     $verbose = $class->SUPER::main(@_);
 
-    use_ok('MT::Plugin::Priority::Util');
-    use_ok('MT::Plugin::Priority::CMS');
-    use_ok('MT::Plugin::Priority::Listing');
+    use_ok('MT::SimpleOrder::Util');
+    use_ok('MT::SimpleOrder::CMS');
+    use_ok('MT::SimpleOrder::Listing');
 }
 
 __PACKAGE__->main() unless caller;

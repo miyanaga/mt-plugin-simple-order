@@ -1,0 +1,28 @@
+id: SimpleOrder
+name: SimpleOrder
+description: <__trans phrase="Manages simple display order of entries and pages.">
+version: 0.2.0
+schema_version: 0.01
+l10n_class: MT::SimpleOrder::L10N
+
+object_types:
+    entry:
+        simple_order: integer indexed
+
+config_settings:
+    SimpleOrderDisplay:
+        default: default
+    SimpleOrderOrder:
+        default: 150
+
+list_properties: $SimpleOrder::MT::SimpleOrder::Listing::properties
+list_actions: $SimpleOrder::MT::SimpleOrder::Listing::actions
+
+applications:
+    cms:
+        callbacks:
+            template_param.list_common: $SimpleOrder::MT::SimpleOrder::Listing::template_param_list_common
+#            template_param.edit_entry: $SimpleOrder::MT::SimpleOrder::CMS::template_param_edit_entry
+#            cms_pre_preview: $SimpleOrder::MT::SimpleOrder::CMS::pre_preview_entry
+#            cms_pre_save.entry: $SimpleOrder::MT::SimpleOrder::CMS::pre_save_object
+#            cms_pre_save.page: $SimpleOrder::MT::SimpleOrder::CMS::pre_save_object
