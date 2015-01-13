@@ -1,7 +1,7 @@
 id: SimpleOrder
 name: SimpleOrder
 description: <__trans phrase="Manages simple display order of entries and pages.">
-version: 0.1.0
+version: 0.2.0
 schema_version: 0.01
 l10n_class: MT::SimpleOrder::L10N
 
